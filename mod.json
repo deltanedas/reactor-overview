@@ -1,0 +1,8 @@
+{
+	"name": "reactor-overview",
+	"displayName": "[#ff00ff]Reactor [#00aaff]Overview",
+	"author": "DeltaNedas",
+	"description": "Adds a menu that shows info on all reactors.",
+	"version": "1.0.0",
+	"hidden": true
+}
