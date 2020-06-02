@@ -75,7 +75,7 @@ if (!this.global.reactorOverview) {
 				var icon = new TextureRegionDrawable(reactor.block().icon(Cicon.full));
 				table.margin(8);
 				table.label(safe(() => reactor.x + "," + reactor.y));
-				table.label(safe(() => " | F " + reactor.entity.items.total()));
+				table.label(safe(() => " | F " + suffix(reactor.entity.items.total())));
 				table.label(safe(() => " | C " + Math.round(reactor.entity.liquids.total())));
 				table.label(safe(() => " | H " + Math.round(reactor.entity.heat * 100) + "%"));
 				table.label(safe(() => " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale)));
