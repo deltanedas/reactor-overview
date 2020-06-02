@@ -5,6 +5,8 @@
 4. Do stuff
 5. Look at it update in real time
 
+**Requires __DeltaNedas/ui-lib__!**
+
 # What does it all mean?
 **T**horium, **C**ryofluid, **H**eat (%), **P**ower
 
