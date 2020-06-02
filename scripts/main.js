@@ -22,8 +22,11 @@ if (!this.global.reactorOverview) {
 	Events.on(EventType.ClientLoadEvent, run(e => {
 		frag = extend(Fragment, {
 			build(parent) {
+				this.content.touchable(Touchable.disabled);
+
 				parent.fill(cons(cont => {
 					cont.visible(boolp(() => this.visible));
+					cont.touchable(Touchable.childrenOnly);
 					cont.update(run(() => {
 						if (Vars.state.is(State.menu)) {
 							this.visible = false;
@@ -31,13 +34,14 @@ if (!this.global.reactorOverview) {
 						}
 					}));
 					cont.table(Tex.buttonTrans, cons(pane => {
-						pane.label(prov(() => "Reactors"));
+						pane.label(prov(() => "Reactors")).get().touchable(Touchable.disabled);
 						pane.row();
-						pane.pane(this.content).grow().get().setScrollingDisabled(true, false);
+						pane.pane(this.content).grow()
+							.get().setScrollingDisabled(true, false);
 						pane.row();
 
 						// Add reactor player is over
-						pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => this.set()));
+						pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => this.set()))
 					}));
 					cont.bottom();
 				}));
@@ -118,7 +122,7 @@ if (!this.global.reactorOverview) {
 		table.setFillParent(true);
 
 		const icon = new TextureRegionDrawable(Blocks.thoriumReactor.icon(Cicon.full));
-		table.addImageButton(icon, Styles.clearPartiali, 48, run(() => {
+		table.addImageButton(icon, Styles.clearPartiali, 47.2, run(() => {
 			frag.toggle();
 		}));
 

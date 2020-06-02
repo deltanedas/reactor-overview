@@ -3,6 +3,6 @@
 	"displayName": "[#ff00ff]Reactor [#00aaff]Overview",
 	"author": "DeltaNedas",
 	"description": "Adds a menu that shows info on all reactors.",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"hidden": true
 }
