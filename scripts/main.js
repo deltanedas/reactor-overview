@@ -121,3 +121,7 @@ ui.loadEvents.push(() => {
 ui.addButton("reactor-overview", Blocks.thoriumReactor, button => {
 	frag.toggle();
 });
+
+Events.on(EventType.WorldLoadEvent, run(() => {
+	frag.rebuild();
+}));
