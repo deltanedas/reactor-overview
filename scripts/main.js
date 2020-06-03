@@ -1,4 +1,4 @@
-require("ui-lib/library");
+var ui = require("ui-lib/library");
 
 // array of int-packed positions
 const reactors = [];
