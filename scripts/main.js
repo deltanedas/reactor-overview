@@ -18,7 +18,7 @@ function suffix(n) {
 	return Math.round(n);
 }
 
-ui.loadEvents.push(() => {
+ui.once(() => {
 	frag = extend(Fragment, {
 		build(parent) {
 			this.content.touchable(Touchable.disabled);
@@ -40,7 +40,7 @@ ui.loadEvents.push(() => {
 					pane.row();
 
 					// Add reactor player is above
-					pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => this.set()))
+					pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => this.set())).margin(8);
 				}));
 				cont.bottom();
 			}));
@@ -116,15 +116,16 @@ ui.loadEvents.push(() => {
 	frag.visible = false;
 	frag.content = new Table().marginLeft(10).marginRight(10);
 	frag.build(Vars.ui.hudGroup);
+
+	// Only hook event to rebuild once
+	Events.on(EventType.WorldLoadEvent, run(() => {
+		frag.rebuild();
+	}));
 });
 
 ui.addButton("reactor-overview", Blocks.thoriumReactor, button => {
 	frag.toggle();
+}, button => {
+	// don't fill the button with the icon
+	button.get().resizeImage(47.2 - 8);
 });
-
-Events.on(EventType.ClientLoadEvent, run(() => {
-	// Only hook event and rebuild once
-	Events.on(EventType.WorldLoadEvent, run(() => {
-		frag.rebuild();
-	}));
-}));
