@@ -27,7 +27,7 @@ ui.loadEvents.push(() => {
 				cont.visible(boolp(() => this.visible));
 				cont.touchable(Touchable.childrenOnly);
 				cont.update(run(() => {
-					if (Vars.state.is(GameState.state.menu)) {
+					if (Vars.state.is(GameState.State.menu)) {
 						this.visible = false;
 						return;
 					}
