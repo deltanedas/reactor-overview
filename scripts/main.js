@@ -36,6 +36,7 @@ ui.once(() => {
 					pane.label(prov(() => "Reactors")).get().touchable(Touchable.disabled);
 					pane.row();
 					pane.pane(this.content).grow()
+						.touchable(Touchable.disabled)
 						.get().setScrollingDisabled(true, false);
 					pane.row();
 
@@ -75,13 +76,12 @@ ui.once(() => {
 			});
 
 			var table = new Table();
-			var icon = new TextureRegionDrawable(reactor.block().icon(Cicon.full));
 			table.margin(8);
-			table.label(safe(() => reactor.x + "," + reactor.y));
-			table.label(safe(() => " | F " + suffix(reactor.entity.items.total())));
-			table.label(safe(() => " | C " + Math.round(reactor.entity.liquids.total())));
-			table.label(safe(() => " | H " + Math.round(reactor.entity.heat * 100) + "%"));
-			table.label(safe(() => " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale)));
+			table.label(safe(() => reactor.x + "," + reactor.y
+				+ " | F " + suffix(reactor.entity.items.total())
+				+ " | C " + Math.round(reactor.entity.liquids.total())
+				+ " | H " + Math.round(reactor.entity.heat * 100) + "%"
+				+ " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale)));
 			this.content.add(table).padBottom(3);
 			this.content.row();
 		},
