@@ -3,7 +3,7 @@
 	"displayName": "[#ff00ff]Reactor [#00aaff]Overview",
 	"author": "DeltaNedas",
 	"description": "Adds a menu that shows realtime info on selected reactors.\n[stat]Requires [#00aaff]DeltaNedas/ui-lib[].",
-	"version": "1.3.4",
+	"version": "1.3.5",
 	"dependencies": ["ui-lib"],
 	"hidden": true
 }

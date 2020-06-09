@@ -18,7 +18,7 @@ function suffix(n) {
 	return Math.round(n);
 }
 
-ui.once(() => {
+ui.once(null, () => {
 	frag = extend(Fragment, {
 		build(parent) {
 			this.content.touchable(Touchable.disabled);
