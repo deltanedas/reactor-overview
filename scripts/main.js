@@ -62,7 +62,7 @@ ui.once(null, () => {
 
 		add(i) {
 			var reactor = Vars.world.tile(reactors[i]);
-			if (!(reactor.block() instanceof NuclearReactor)) {
+			if (!reactor || !(reactor.block() instanceof NuclearReactor)) {
 				return;
 			}
 
