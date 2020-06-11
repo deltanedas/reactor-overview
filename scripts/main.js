@@ -21,7 +21,7 @@ function suffix(n) {
 ui.once(null, () => {
 	frag = extend(Fragment, {
 		build(parent) {
-			this.content.touchable(Touchable.disabled);
+			this.content.touchable(Touchable.childrenOnly);
 
 			parent.fill(cons(cont => {
 				cont.visible(boolp(() => this.visible));
@@ -36,7 +36,7 @@ ui.once(null, () => {
 					pane.label(prov(() => "Reactors")).get().touchable(Touchable.disabled);
 					pane.row();
 					pane.pane(this.content).grow()
-						.touchable(Touchable.disabled)
+						.touchable(Touchable.childrenOnly)
 						.get().setScrollingDisabled(true, false);
 					pane.row();
 
@@ -76,13 +76,24 @@ ui.once(null, () => {
 			});
 
 			var table = new Table();
-			table.margin(8);
+			table.margin(2).touchable(Touchable.childrenOnly);
 			table.label(safe(() => reactor.x + "," + reactor.y
 				+ " | F " + suffix(reactor.entity.items.total())
 				+ " | C " + Math.round(reactor.entity.liquids.total())
 				+ " | H " + Math.round(reactor.entity.heat * 100) + "%"
-				+ " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale)));
-			this.content.add(table).padBottom(3);
+				+ " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale))).touchable(Touchable.disabled);
+			// SCRAM button
+			table.addImageButton(Icon.cancel, Styles.clearPartiali, run(() => {
+				// Take out 300
+				for (var i = 0; i < 20; i++) {
+					// 15 at a time, smallest inventory fits this
+					Call.requestItem(Vars.player, reactor, Items.thorium, 15);
+				}
+			})).margin(4).visible(boolp(() => {
+				// Only show when reactor is low on cryo
+				return reactor.entity != null && reactor.entity.liquids.total() < 28;
+			}));;
+			this.content.add(table);
 			this.content.row();
 		},
 
