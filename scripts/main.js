@@ -76,7 +76,7 @@ ui.once(null, () => {
 			});
 
 			var table = new Table();
-			table.margin(2).touchable(Touchable.childrenOnly);
+			table.touchable(Touchable.childrenOnly);
 			table.label(safe(() => reactor.x + "," + reactor.y
 				+ " | F " + suffix(reactor.entity.items.total())
 				+ " | C " + Math.round(reactor.entity.liquids.total())
