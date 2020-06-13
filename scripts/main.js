@@ -91,7 +91,7 @@ ui.once(null, () => {
 				}
 			})).margin(4).visible(boolp(() => {
 				// Only show when reactor is low on cryo
-				return reactor.entity != null && reactor.entity.liquids.total() < 28;
+				return reactor.entity != null reactor.entity.liquids != null && reactor.entity.liquids.total() < 28;
 			}));;
 			this.content.add(table);
 			this.content.row();
