@@ -142,7 +142,10 @@ const frag = extend(Fragment, {
 });
 frag.visible = false;
 frag.content = new Table().marginLeft(10).marginRight(10);
-frag.build(Vars.ui.hudGroup);
+
+ui.onLoad(() => {
+	frag.build(Vars.ui.hudGroup);
+});
 
 Events.on(EventType.WorldLoadEvent, run(() => {
 	frag.rebuild();
