@@ -14,13 +14,12 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+(() => {
 
-var ui = require("ui-lib/library");
+const ui = require("ui-lib/library");
 
 // array of int-packed positions
 const reactors = [];
-// fragment that houses the reactor info TODO: add fragment creation to ui-lib
-var frag;
 
 const suffices = ['K', 'M', 'B', 'T'];
 
@@ -155,3 +154,5 @@ ui.addButton("reactor-overview", Blocks.thoriumReactor, button => {
 	// don't fill the button with the icon
 	button.get().resizeImage(47.2 - 8);
 });
+
+})()
