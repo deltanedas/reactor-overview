@@ -18,6 +18,10 @@
 
 const ui = require("ui-lib/library");
 
+const toast = text => {
+	Vars.ui.showInfoToast(text, 5);
+};
+
 // array of int-packed positions
 const reactors = [];
 
@@ -56,7 +60,13 @@ const frag = extend(Fragment, {
 				pane.row();
 
 				// Add reactor player is above
-				pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => this.set())).margin(8);
+				pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => {
+					toast("Click a reactor");
+					ui.click((pos, tile) => {
+						this.set(tile && tile.link());
+						return true;
+					});
+				})).margin(8);
 			}));
 			cont.bottom();
 		}));
@@ -113,30 +123,27 @@ const frag = extend(Fragment, {
 		this.content.row();
 	},
 
-	set() {
-		const tile = Vars.world.tile(Vars.player.x / Vars.tilesize, Vars.player.y / Vars.tilesize);
+	set(tile) {
 		const pos = this.reactorCenter(tile, false);
 		if (pos !== null) {
 			const index = reactors.indexOf(pos);
 			if (index >= 0) {
 				reactors.splice(index, 1);
-				Vars.ui.showInfoToast("Removed reactor", 5);
+				toast("Removed reactor");
 			} else {
 				reactors.push(pos);
-				Vars.ui.showInfoToast("Added reactor", 5);
+				toast("Added reactor");
 			}
 			this.rebuild();
 		} else {
-			Vars.ui.showInfoToast("Not above a reactor.", 5);
+			toast("[red]Not a reactor");
 		}
 	},
 
 	reactorCenter(tile, tried) {
+		if (!tile) return null;
 		const block = tile.block();
 		if (!block) return null;
-		if (block instanceof BlockPart) {
-			return tried ? null : this.reactorCenter(block.linked(tile), true);
-		}
 		return block instanceof NuclearReactor ? tile.pos() : null;
 	}
 });
