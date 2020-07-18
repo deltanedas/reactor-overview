@@ -104,7 +104,7 @@ const frag = extend(Fragment, {
 		table.touchable(Touchable.childrenOnly);
 		table.label(safe(() => reactor.x + "," + reactor.y
 			+ " | F " + suffix(reactor.entity.items.total())
-			+ " | C " + Math.round(reactor.entity.liquids.total())
+			+ " | C " + Math.round(this.getCryo(reactor.ent()) * 100) + "%"
 			+ " | H " + Math.round(reactor.entity.heat * 100) + "%"
 			+ " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale))).touchable(Touchable.disabled);
 
@@ -145,6 +145,28 @@ const frag = extend(Fragment, {
 		const block = tile.block();
 		if (!block) return null;
 		return block instanceof NuclearReactor ? tile.pos() : null;
+	},
+
+	/* Total cryo in adjacent tanks */
+	getCryo(ent) {
+		var max = ent.block.liquidCapacity;
+		var count = ent.liquids.get(Liquids.cryofluid);
+
+		if (ent.block instanceof NuclearReactor) {
+			const prox = ent.proximity();
+			for (var i = 0; i < prox.size; i++) {
+				var near = prox.get(i).ent();
+				/* Only consider tanks valid */
+				if (!(near.block instanceof LiquidRouter)) {
+					continue;
+				}
+
+				max += near.block.liquidCapacity;
+				count += near.liquids.get(Liquids.cryofluid);
+			}
+		}
+
+		return Math.min(count / max, 1);
 	}
 });
 frag.visible = false;
