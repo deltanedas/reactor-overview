@@ -63,6 +63,8 @@ const frag = extend(Fragment, {
 				pane.addImageButton(Icon.upgrade, Styles.clearPartiali, 32, run(() => {
 					toast("Click a reactor");
 					ui.click((pos, tile) => {
+						if (Core.scene.hasMouse(pos.x, pos.y)) return;
+
 						this.set(tile && tile.link());
 						return true;
 					});
