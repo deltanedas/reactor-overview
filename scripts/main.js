@@ -27,7 +27,7 @@ const reactors = [];
 
 const suffices = ['K', 'M', 'B', 'T'];
 
-function suffix(n) {
+const suffix = n => {
 	var thresh;
 	for (var i = suffices.length - 1; i > 0; i--) {
 		thresh = Math.pow(10, i * 3);
@@ -36,7 +36,54 @@ function suffix(n) {
 		}
 	}
 	return Math.round(n);
-}
+};
+
+/* Total cryo in reactor and adjacent tanks */
+const getCryo = ent => {
+	var max = ent.block.liquidCapacity;
+	var count = ent.liquids.get(Liquids.cryofluid);
+
+	const prox = ent.proximity();
+	for (var i = 0; i < prox.size; i++) {
+		var near = prox.get(i).ent();
+		/* Only consider tanks valid */
+		if (!(near.block instanceof LiquidRouter)) {
+			continue;
+		}
+
+		max += near.block.liquidCapacity;
+		count += near.liquids.get(Liquids.cryofluid);
+	}
+
+	return Math.min(count / max, 1);
+};
+
+/* Interfaces for a reactor's stats */
+const interfaces = {
+	thorium(entity) {
+		return {
+			fuel: entity.items.total(),
+			cryo: getCryo(entity),
+			heat: entity.heat,
+			power: entity.block.getPowerProduction(entity.tile)
+				* entity.timeScale * 60
+		};
+	},
+
+	impact(entity) {
+		const stats = interfaces.thorium(entity);
+		stats.heat = entity.warmup;
+
+		/* Warmup power */
+		const block = entity.block;
+		stats.power = block.getPowerProduction(entity.tile);
+		stats.power -= block.consumes.getPower().usage;
+		stats.power = Math.max(stats.power, 0);
+		stats.power *= entity.timeScale * 60;
+
+		return stats;
+	}
+};
 
 const frag = extend(Fragment, {
 	build(parent) {
@@ -51,6 +98,7 @@ const frag = extend(Fragment, {
 					return;
 				}
 			}));
+
 			cont.table(Tex.buttonTrans, cons(pane => {
 				pane.label(prov(() => "Reactors")).get().touchable(Touchable.disabled);
 				pane.row();
@@ -85,8 +133,8 @@ const frag = extend(Fragment, {
 	},
 
 	add(i) {
-		var reactor = Vars.world.tile(reactors[i]);
-		if (!reactor || !(reactor.block() instanceof NuclearReactor)) {
+		const reactor = Vars.world.tile(reactors[i]);
+		if (!this.valid(reactor)) {
 			return;
 		}
 
@@ -99,26 +147,47 @@ const frag = extend(Fragment, {
 			return func();
 		});
 
-		var table = new Table();
-		table.touchable(Touchable.childrenOnly);
-		table.label(safe(() => reactor.x + "," + reactor.y
-			+ " | F " + suffix(reactor.entity.items.total())
-			+ " | C " + Math.round(this.getCryo(reactor.ent()) * 100) + "%"
-			+ " | H " + Math.round(reactor.entity.heat * 100) + "%"
-			+ " | P " + suffix(reactor.block().getPowerProduction(reactor) * 60 * reactor.entity.timeScale))).touchable(Touchable.disabled);
+		const table = this.content.table().left().padBottom(8).get();
 
-		// SCRAM button
-		table.addImageButton(Icon.cancel, Styles.clearPartiali, run(() => {
-			// Take out 300
-			for (var i = 0; i < 20; i++) {
-				// 15 at a time, smallest inventory fits this
-				Call.requestItem(Vars.player, reactor, Items.thorium, 15);
-			}
-		})).margin(4).visible(boolp(() => {
-			// Only show when reactor is low on cryo
-			return reactor.entity != null && reactor.entity.liquids != null && reactor.entity.liquids.total() < 28;
-		}));
-		this.content.add(table);
+		var interface;
+		if (reactor.block() instanceof NuclearReactor) {
+			table.touchable(Touchable.childrenOnly);
+			interface = interfaces.thorium;
+		} else {
+			// Impacts dont need a SCRAM button
+			table.touchable(Touchable.disabled);
+			interface = interfaces.impact;
+		}
+
+		table.addImage(reactor.block().icon(Cicon.full))
+			.size(48).padRight(12).touchable(Touchable.disabled);
+		table.add(reactor.x + ", " + reactor.y)
+			.padRight(8).touchable(Touchable.disabled);
+
+		table.label(safe(() => {
+			const stats = interface(reactor.entity);
+			return "F " + suffix(stats.fuel)
+				+ " | C " + Math.round(stats.cryo * 100) + "%"
+				+ " | H " + Math.round(stats.heat * 100) + "%"
+				+ " | P " + suffix(stats.power);
+		})).touchable(Touchable.disabled);
+
+		/* SCRAM button */
+		if (reactor.block() instanceof NuclearReactor) {
+			table.addImageButton(Icon.cancel, Styles.clearPartiali, run(() => {
+				/* Take out 300 thorium, useful for demon reactors */
+				for (var i = 0; i < 20; i++) {
+					// 15 at a time, smallest inventory fits this
+					Call.requestItem(Vars.player, reactor, Items.thorium, 15);
+				}
+			})).margin(4).visible(boolp(() => {
+				/* Only show when reactor is low on cryo and running */
+				return reactor.entity != null && reactor.entity.liquids != null
+					&& reactor.entity.liquids.total() < 28
+					&& reactor.entity.items.total() > 0;
+			}));
+		}
+
 		this.content.row();
 	},
 
@@ -143,29 +212,16 @@ const frag = extend(Fragment, {
 		if (!tile) return null;
 		const block = tile.block();
 		if (!block) return null;
-		return block instanceof NuclearReactor ? tile.pos() : null;
+		return this.validBlock(block) ? tile.pos() : null;
 	},
 
-	/* Total cryo in adjacent tanks */
-	getCryo(ent) {
-		var max = ent.block.liquidCapacity;
-		var count = ent.liquids.get(Liquids.cryofluid);
+	valid(tile) {
+		return tile && this.validBlock(tile.block());
+	},
 
-		if (ent.block instanceof NuclearReactor) {
-			const prox = ent.proximity();
-			for (var i = 0; i < prox.size; i++) {
-				var near = prox.get(i).ent();
-				/* Only consider tanks valid */
-				if (!(near.block instanceof LiquidRouter)) {
-					continue;
-				}
-
-				max += near.block.liquidCapacity;
-				count += near.liquids.get(Liquids.cryofluid);
-			}
-		}
-
-		return Math.min(count / max, 1);
+	validBlock(block) {
+		return block instanceof NuclearReactor
+			|| block instanceof ImpactReactor;
 	}
 });
 frag.visible = false;
